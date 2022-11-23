@@ -48,12 +48,10 @@ for i in range(0,width,int(np.sqrt(pixels_per_vector))):
         x1[pos] = i
         y1[pos] = j
         pos += 1
-fx0, fy0 = x0_array[x0], y0_array[y0]
-fx1, fy1 = x1_array[x1], y1_array[y1]
 
 # plot
 plt.figure("Q0", figsize=(width, height))
 plt.quiver(x0, y0, x0_array, y0_array)
 plt.figure("Q1", figsize=(width, height))
-plt.quiver(x1, y1, fx1, fy1)
+plt.quiver(x1, y1, x0_array, y0_array)
 plt.show()

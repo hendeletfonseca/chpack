@@ -4,7 +4,7 @@ import sys
 from pyViewerApp import pyViewerApp
 
 ORGANIZATION_NAME = 'LCC-IC-UFF'
-ORGANIZATION_DOMAIN = ''
+ORGANIZATION_DOMAIN = 'UFF'
 APPLICATION_NAME = 'PyViewer'
 SETTINGS_TRAY = 'settings/tray'
 
@@ -21,7 +21,7 @@ def main():
 
     # create the instance of our Window
     mw = pyViewerApp(APPLICATION_NAME)
-
+    
     # showing all the widgets
     mw.show()
 
