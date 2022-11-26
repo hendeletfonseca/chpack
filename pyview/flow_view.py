@@ -6,7 +6,6 @@ width = 100
 height = 100
 num_pixels = width * height
 pixels_per_vector = 1 # 
-axis = 0
 
 # reading lines from file
 qx0 = open("pyview/values/qx0.txt", "r")
@@ -35,11 +34,7 @@ for i in range(width):
         y1_array[i * height + j] = np.float64(qy1_lines[i + j * height])
 
 # range
-#x_range = y_range = np.linspace(0, 1, width)
-x0 = [0] * int(num_pixels / pixels_per_vector)
-y0 = [0] * int(num_pixels / pixels_per_vector)
-x1 = [0] * int(num_pixels / pixels_per_vector)
-y1 = [0] * int(num_pixels / pixels_per_vector)
+x0, y0, x1, y1 = [0] * int(num_pixels / pixels_per_vector)
 pos = 0
 for i in range(0,width,int(np.sqrt(pixels_per_vector))):
     for j in range(0,height,int(np.sqrt(pixels_per_vector))):
