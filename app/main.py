@@ -31,14 +31,16 @@ class App(QMainWindow, Ui_MainWindow):
             self.filePath = self.filePath[:i]
             i -= 1
         self.filePath = self.filePath[:i]
+        print(self.filePath)
 
     def openPytomoview(self):
-        subprocess.Popen(f"python -c 'import pytomoviewer as ptv; ptv.run()'", stdout=subprocess.PIPE, shell=True)
+        subprocess.Popen(f'python -c "import pytomoviewer as ptv; ptv.run()"', stdout=subprocess.PIPE, shell=True)
         
     def openCh2pp(self):
         if self.filePath:
             subprocess.Popen(f"julia src/ch2pp.jl {self.filePath}", stdout=subprocess.PIPE, shell=True)
-        print("finish")
+        else:
+            print("Not path")
 
     def openTempView(self):
         subprocess.Popen(f"python pyview/temp_view.py", stdout=subprocess.PIPE, shell=True)
