@@ -21,7 +21,6 @@ qy1_lines = qy1.readlines()
 qx1.close()
 qy1.close()
 
-# reordening arrays
 x0_array = np.zeros(num_pixels)
 y0_array = np.zeros(num_pixels)
 x1_array = np.zeros(num_pixels)
@@ -34,7 +33,10 @@ for i in range(width):
         y1_array[i * height + j] = np.float64(qy1_lines[i + j * height])
 
 # range
-x0, y0, x1, y1 = [0] * int(num_pixels / pixels_per_vector)
+x0 = [0] * int(num_pixels / pixels_per_vector)
+y0 = [0] * int(num_pixels / pixels_per_vector)
+x1 = [0] * int(num_pixels / pixels_per_vector)
+y1 = [0] * int(num_pixels / pixels_per_vector)
 pos = 0
 for i in range(0,width,int(np.sqrt(pixels_per_vector))):
     for j in range(0,height,int(np.sqrt(pixels_per_vector))):
@@ -44,9 +46,14 @@ for i in range(0,width,int(np.sqrt(pixels_per_vector))):
         y1[pos] = j
         pos += 1
 
+width /= 10
+height /= 10
+
 # plot
 plt.figure("Q0", figsize=(width, height))
 plt.quiver(x0, y0, x0_array, y0_array)
+plt.savefig("pyview/images/Q0-rhs0.png")
 plt.figure("Q1", figsize=(width, height))
 plt.quiver(x1, y1, x0_array, y0_array)
-plt.show()
+plt.savefig("pyview/images/Q1-rhs0.png")
+#plt.show()

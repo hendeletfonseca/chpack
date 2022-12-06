@@ -43,11 +43,18 @@ class App(QMainWindow, Ui_MainWindow):
             print("Not path")
 
     def openTempView(self):
-        subprocess.Popen(f"python pyview/temp_view.py", stdout=subprocess.PIPE, shell=True)
+        #subprocess.Popen(f"python pyview/temp_view.py", stdout=subprocess.PIPE, shell=True)
+        if self.filePath != None:
+            os.system("python pyview/temp_view.py")
+            self.original_img = QPixmap(self.filePath)
+        self.labelImg.setPixmap(self.original_img)
 
     def openFlowView(self):
-        subprocess.Popen(f"python pyview/flow_view.py", stdout=subprocess.PIPE, shell=True)
-
+        #subprocess.Popen(f"python pyview/flow_view.py", stdout=subprocess.PIPE, shell=True)
+        os.system("python pyview/flow_view.py")
+        self.original_img = QPixmap(self.filePath)
+        self.labelImg.setPixmap(self.original_img)
+        
 if __name__ == '__main__':
     qt = QApplication(sys.argv)
     app = App()

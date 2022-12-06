@@ -1,7 +1,7 @@
 {
     "type_of_analysis": 0,
     "type_of_solver": 0,
-    "type_of_rhs": 1,
+    "type_of_rhs": 0,
     "voxel_size": 1.0,
     "solver_tolerance": 1e-06,
     "number_of_iterations": 1000,
