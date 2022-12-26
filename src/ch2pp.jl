@@ -20,7 +20,7 @@ struct Model
     nElems::UInt64;
     nDOFs::UInt64;
     DOFMap::Array{UInt64}; 
-    elemMatMap::Array{UInt64}; 
+    elemMatMap::Array{UInt64};
     function Model(_nx, _ny, _voxelSize, _refinement, _nMat, _rhsType, _solverType, _pcgTol, _pcgIter, _matKeys, _matProp, _nNodes, _nElems, _nDOFs, _DOFMap, _elemMatMap)
         new(_nx, _ny, _voxelSize, _refinement, _nMat, _rhsType, _solverType, _pcgTol, _pcgIter, _matKeys, _matProp, _nNodes, _nElems, _nDOFs, _DOFMap, _elemMatMap);
     end
@@ -303,29 +303,28 @@ function femEffective(_model::Model, _T::Array{Float64,1}, _axis::Int, _B::Array
 
     # opening txt file:
     if (_axis == 0)
-        t_txt = open("pyview/values/t0.txt", "w");
-        qx_txt = open("pyview/values/qx0.txt", "w");
-        qy_txt = open("pyview/values/qy0.txt", "w");
+        t_txt = open("pyview/values/temp_rhs_0.txt", "w");
+        qx_txt = open("pyview/values/flow_x_rhs_0.txt", "w");
+        qy_txt = open("pyview/values/flow_y_rhs_0.txt", "w");
     elseif (_axis == 1)
-        t_txt = open("pyview/values/t1.txt", "w");
-        qx_txt = open("pyview/values/qx1.txt", "w");
-        qy_txt = open("pyview/values/qy1.txt", "w");
+        t_txt = open("pyview/values/temp_rhs_1.txt", "w");
+        qx_txt = open("pyview/values/flow_x_rhs_1.txt", "w");
+        qy_txt = open("pyview/values/flow_y_rhs_1.txt", "w");
     end
 
     # Compute the effective properties for each test: 
     if _model.rhsType == 1  # Boundary
-        qx = 0; qy = 0;
         if _axis == 0
-            deltaT = _model.nx;   
-            for eb = _model.nElems - (_model.ny - 1):_model.nElems  
+            deltaT = _model.nx;
+            for eb = _model.nElems - (_model.ny - 1):_model.nElems
                 QX += (_B[1,2,_model.elemMatMap[eb]] * deltaT); QX += (_B[1,3,_model.elemMatMap[eb]] * deltaT);
-                QY += (_B[2,2,_model.elemMatMap[eb]] * deltaT); QY += (_B[2,3,_model.elemMatMap[eb]] * deltaT);             
-            end    
+                QY += (_B[2,2,_model.elemMatMap[eb]] * deltaT); QY += (_B[2,3,_model.elemMatMap[eb]] * deltaT);
+            end
         elseif _axis == 1
             deltaT = _model.ny;
             for eb = 1:(_model.ny):_model.nElems
                 QX += (_B[1,3,_model.elemMatMap[eb]] * deltaT); QX += (_B[1,4,_model.elemMatMap[eb]] * deltaT);
-                QY += (_B[2,3,_model.elemMatMap[eb]] * deltaT); QY += (_B[2,4,_model.elemMatMap[eb]] * deltaT);             
+                QY += (_B[2,3,_model.elemMatMap[eb]] * deltaT); QY += (_B[2,4,_model.elemMatMap[eb]] * deltaT);
             end 
         end
         for e = 1:_model.nElems
@@ -333,19 +332,17 @@ function femEffective(_model::Model, _T::Array{Float64,1}, _axis::Int, _B::Array
             pElemDOFNum[1] = N1; pElemDOFNum[2] = N2; pElemDOFNum[3] = N3; pElemDOFNum[4] = N4;
             for i = 1:4
                 QX += (_B[1,i,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[i]]]);
-                #qx += (_B[1,i,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[i]]]);
                 QY += (_B[2,i,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[i]]]);
-                #qy += (_B[2,i,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[i]]]);
             end
 
             if _axis == 0 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[4]]], "\n"));
             elseif _axis == 1 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[2]]], "\n"));
             end
 
-            #write(qx_txt, string(qx, '\n'));
-            #write(qy_txt, string(qy, '\n'));
-            write(qx_txt, string((_B[1,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
-            write(qy_txt, string((_B[2,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
+            #write(qx_txt, string((_B[1,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
+            #write(qy_txt, string((_B[2,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
+            write(qx_txt, string(QX, '\n'));
+            write(qy_txt, string(QY, '\n'));
 
         end        
     elseif _model.rhsType == 0  # Domain
@@ -360,11 +357,16 @@ function femEffective(_model::Model, _T::Array{Float64,1}, _axis::Int, _B::Array
                 QX += (_B[1,i,_model.elemMatMap[e]] * (t[i] - _T[_model.DOFMap[pElemDOFNum[i]]]));
                 QY += (_B[2,i,_model.elemMatMap[e]] * (t[i] - _T[_model.DOFMap[pElemDOFNum[i]]]));
             end
-            write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[4]]], "\n"));
+
+            if _axis == 0 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[4]]], "\n"));
+            elseif _axis == 1 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[2]]], "\n"));
+            end
+
             #write(qx_txt, string(QX, '\n'));
             #write(qy_txt, string(QY, '\n'));
-            write(qx_txt, string((_B[1,4,_model.elemMatMap[e]] * (t[4] - _T[_model.DOFMap[pElemDOFNum[4]]])), '\n'));
-            write(qy_txt, string((_B[2,4,_model.elemMatMap[e]] * (t[4] - _T[_model.DOFMap[pElemDOFNum[4]]])), '\n'));
+            write(qx_txt, string((_B[1,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
+            write(qy_txt, string((_B[2,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
+
         end
     end
     close(t_txt);
@@ -430,6 +432,8 @@ function main(_arg)
         println("C[$i,:] = ", m_C[i,:]);
     end
     println("--------------------------------------");
+
+
 end
 
 # Starts application

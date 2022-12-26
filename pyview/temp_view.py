@@ -1,33 +1,33 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
-X_SIZE = 100
-Y_SIZE = 100
+def temp_view(FILE_PATH):
+    FILE_PATH += ".tif"
+    IMG = Image.open(FILE_PATH)
+    WIDTH = IMG.width
+    HEIGHT = IMG.height
 
-temp_0 = open("pyview/values/t0.txt", "r")
-temp_1 = open("pyview/values/t1.txt", "r")
+    # reading lines
+    temp_rhs_0 = open("pyview/values/temp_rhs_0.txt", "r")
+    temp_rhs_1 = open("pyview/values/temp_rhs_1.txt", "r")
+    temp_rhs_0_lines = temp_rhs_0.readlines()
+    temp_rhs_1_lines = temp_rhs_1.readlines()
+    temp_rhs_0.close()
+    temp_rhs_1.close()
 
-temp_lines_0 = temp_0.readlines()
-temp_lines_1 = temp_1.readlines()
+    matrix_temp_rhs_0 = np.empty((WIDTH, HEIGHT), dtype=np.float64)
+    matrix_temp_rhs_1 = np.empty((WIDTH, HEIGHT), dtype=np.float64)
 
-temp_0.close()
-temp_1.close()
+    for x in range(WIDTH):
+        for y in range(HEIGHT):
+            matrix_temp_rhs_0[y][x] = np.float64(temp_rhs_0_lines[x*HEIGHT+y])
+            matrix_temp_rhs_1[y][x] = np.float64(temp_rhs_1_lines[x*HEIGHT+y])
 
-temp_matriz_0 = np.empty((X_SIZE, Y_SIZE), dtype=np.float64)
-temp_matriz_1 = np.empty((X_SIZE, Y_SIZE), dtype=np.float64)
+    plt.imshow(matrix_temp_rhs_0, cmap='hot', interpolation='nearest')
+    plt.savefig("pyview/images/temp_rhs_0.png")
 
-for x in range(X_SIZE):
-    for y in range(Y_SIZE):
-        temp_matriz_0[y][x] = np.float64(temp_lines_0[x*Y_SIZE+y])
-        temp_matriz_1[y][x] = np.float64(temp_lines_1[x*Y_SIZE+y])
+    plt.imshow(matrix_temp_rhs_1, cmap='hot', interpolation='nearest')
+    plt.savefig("pyview/images/temp_rhs_1.png")
 
-plt.subplot(2,2,1)
-plt.imshow(temp_matriz_0, cmap='hot', interpolation='nearest')
-plt.title("t0")
-
-plt.subplot(2,2,2)
-plt.imshow(temp_matriz_1, cmap='hot', interpolation='nearest')
-plt.title("t1")
-
-plt.colorbar()
-plt.show()
+    return
