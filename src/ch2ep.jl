@@ -631,5 +631,3 @@ function homogenize(_arg)
     end
     println("\nE = ", 1 / m_D[1][1])
 end
-
-homogenize("inp/p100x100")
