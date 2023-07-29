@@ -377,7 +377,7 @@ function femEffective(_model::Model, _T::Vector{Float64}, _axis::Int, _B::Array{
     N1::UInt64 = 0; N2::UInt64 = 0; N3::UInt64 = 0; N4::UInt64 = 0; 
     pElemDOFNum = zeros(UInt64, 4)
     C = zeros(Float64, 2, 2)
-
+    
     # opening txt file:
     if (_axis == 0)
         t_txt = open("out/data/temp_rhs_0.txt", "w");
@@ -388,7 +388,7 @@ function femEffective(_model::Model, _T::Vector{Float64}, _axis::Int, _B::Array{
         qx_txt = open("out/data/flow_x_rhs_1.txt", "w");
         qy_txt = open("out/data/flow_y_rhs_1.txt", "w");
     end
-
+    
     # Compute the effective properties for each test: 
     if _model.rhsType == 1  # Boundary
         deltaT::Float64 = 0.0
@@ -416,12 +416,8 @@ function femEffective(_model::Model, _T::Vector{Float64}, _axis::Int, _B::Array{
             if _axis == 0 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[4]]], "\n"));
             elseif _axis == 1 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[2]]], "\n"));
             end
-
-            #write(qx_txt, string((_B[1,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
-            #write(qy_txt, string((_B[2,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
             write(qx_txt, string(QX, '\n'));
             write(qy_txt, string(QY, '\n'));
-
         end        
     elseif _model.rhsType == 0  # Domain
         t = zeros(Float64, 4)
@@ -438,20 +434,15 @@ function femEffective(_model::Model, _T::Vector{Float64}, _axis::Int, _B::Array{
             if _axis == 0 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[4]]], "\n"));
             elseif _axis == 1 write(t_txt, string(_T[_model.DOFMap[pElemDOFNum[2]]], "\n"));
             end
-
-
-            #write(qx_txt, string(QX, '\n'));
-            #write(qy_txt, string(QY, '\n'));
             write(qx_txt, string((_B[1,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
             write(qy_txt, string((_B[2,4,_model.elemMatMap[e]] * _T[_model.DOFMap[pElemDOFNum[4]]]), '\n'));
-
         end 
     end
 
     close(t_txt);
     close(qx_txt);
     close(qy_txt);
-
+    
     C[1,_axis + 1] = QX / _model.nElems; C[2,_axis + 1] = QY / _model.nElems;
     return C
 end

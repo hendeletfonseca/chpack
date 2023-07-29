@@ -463,48 +463,49 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
     N1::UInt64 = 0; N2::UInt64 = 0; N3::UInt64 = 0; N4::UInt64 = 0;
     pElemDOFNum = zeros(UInt64, 8)
     C = zeros(Float64, 3, 3)
-
+    
     # Compute the effective properties for each test: 
     if _model.rhsType == 1  # Boundary
+        delta::Float64 = 0.0 
         if _axis == 0
             stressSX = open("out/data/stressSXX.txt", "w")
             stressSY = open("out/data/stressSYY.txt", "w")
             stressSXY = open("out/data/stressSXY.txt", "w")
-            deltaX = _model.nx;   
-            for eb = _model.nElems - (_model.ny - 1):_model.nElems
+            delta = _model.nx;   
+            for eb = _model.nElems - (_model.ny - 1):_model.nElems                
                 for j in [3 5]
-                    SX   += (_B[1,j,_model.elemMatMap[eb]] * deltaX)
-                    SY   += (_B[2,j,_model.elemMatMap[eb]] * deltaX)
-                    SXY  += (_B[3,j,_model.elemMatMap[eb]] * deltaX)
+                    SX   += (_B[1,j,_model.elemMatMap[eb]] * delta)
+                    SY   += (_B[2,j,_model.elemMatMap[eb]] * delta)
+                    SXY  += (_B[3,j,_model.elemMatMap[eb]] * delta)
                 end
                 write(stressSX, string(SX, '\n'))
                 write(stressSY, string(SY, '\n'))
-                write(stressSXY, string(SXY, '\n'))
+                write(stressSXY, string(SXY, '\n'))             
             end
             close(stressSX)
             close(stressSY)
             close(stressSXY)  
         elseif _axis == 1
-            deltaX = _model.ny;
-            for eb = 1:(_model.ny):_model.nElems
+            delta = _model.ny;
+            for eb = 1:(_model.ny):_model.nElems                
                 for j in [6 8]
-                    SX   += (_B[1,j,_model.elemMatMap[eb]] * deltaX)
-                    SY   += (_B[2,j,_model.elemMatMap[eb]] * deltaX)
-                    SXY  += (_B[3,j,_model.elemMatMap[eb]] * deltaX)
+                    SX   += (_B[1,j,_model.elemMatMap[eb]] * delta)
+                    SY   += (_B[2,j,_model.elemMatMap[eb]] * delta)
+                    SXY  += (_B[3,j,_model.elemMatMap[eb]] * delta)
                 end           
             end 
         elseif _axis == 2
-            deltaX = _model.ny;
+            delta = _model.ny;
             for eb = 1:(_model.ny):_model.nElems
                 for j in [5 7]
-                    SX   += (_B[1,j,_model.elemMatMap[eb]] * deltaX)
-                    SY   += (_B[2,j,_model.elemMatMap[eb]] * deltaX)
-                    SXY  += (_B[3,j,_model.elemMatMap[eb]] * deltaX)
+                    SX   += (_B[1,j,_model.elemMatMap[eb]] * delta)
+                    SY   += (_B[2,j,_model.elemMatMap[eb]] * delta)
+                    SXY  += (_B[3,j,_model.elemMatMap[eb]] * delta)
                 end           
             end 
         end
         for e = 1:_model.nElems
-            N1 = e + ((e - 1) ÷ _model.ny) + 1; N3 = N1 + _model.ny; N2 = N3 + 1; N4 = N1 - 1;
+            N1 = e + ((e - 1) ÷ _model.ny) + 1; N3 = N1 + _model.ny; N2 = N3 + 1; N4 = N1 - 1;            
             pElemDOFNum[1] = _model.DOFMap[N1] * 2 - 1; pElemDOFNum[2] = _model.DOFMap[N1] * 2;
             pElemDOFNum[3] = _model.DOFMap[N2] * 2 - 1; pElemDOFNum[4] = _model.DOFMap[N2] * 2;
             pElemDOFNum[5] = _model.DOFMap[N3] * 2 - 1; pElemDOFNum[6] = _model.DOFMap[N3] * 2;
@@ -517,48 +518,37 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
         end        
     elseif _model.rhsType == 0  # Domain
         x = zeros(Float64, 8)
-        if (_axis == 0) # horizontal deformation
-            x[3] = 1; x[5] = 1;
+        if (_axis == 0);     x[3] = 1; x[5] = 1;
+        elseif (_axis == 1); x[6] = 1; x[8] = 1;
+        elseif (_axis == 2); x[5] = 1; x[7] = 1; end
+
+        if (_axis == 0)
             stressSX = open("out/data/stressSXX.txt", "w")
             stressSY = open("out/data/stressSYY.txt", "w")
             stressSXY = open("out/data/stressSXY.txt", "w")
-            for e = 1:_model.nElems            
-                N1 = e + ((e - 1) ÷ _model.ny) + 1; N3 = N1 + _model.ny; N2 = N3 + 1; N4 = N1 - 1;
-                pElemDOFNum[1] = _model.DOFMap[N1] * 2 - 1; pElemDOFNum[2] = _model.DOFMap[N1] * 2;
-                pElemDOFNum[3] = _model.DOFMap[N2] * 2 - 1; pElemDOFNum[4] = _model.DOFMap[N2] * 2;
-                pElemDOFNum[5] = _model.DOFMap[N3] * 2 - 1; pElemDOFNum[6] = _model.DOFMap[N3] * 2;
-                pElemDOFNum[7] = _model.DOFMap[N4] * 2 - 1; pElemDOFNum[8] = _model.DOFMap[N4] * 2;
-                for i = 1:8
-                    SX  += (_B[1,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
-                    SY  += (_B[2,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
-                    SXY += (_B[3,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
-                end
+        end
+
+        for e = 1:_model.nElems            
+            N1 = e + ((e - 1) ÷ _model.ny) + 1; N3 = N1 + _model.ny; N2 = N3 + 1; N4 = N1 - 1;            
+            pElemDOFNum[1] = _model.DOFMap[N1] * 2 - 1; pElemDOFNum[2] = _model.DOFMap[N1] * 2;
+            pElemDOFNum[3] = _model.DOFMap[N2] * 2 - 1; pElemDOFNum[4] = _model.DOFMap[N2] * 2;
+            pElemDOFNum[5] = _model.DOFMap[N3] * 2 - 1; pElemDOFNum[6] = _model.DOFMap[N3] * 2;
+            pElemDOFNum[7] = _model.DOFMap[N4] * 2 - 1; pElemDOFNum[8] = _model.DOFMap[N4] * 2;
+            for i = 1:8
+                SX  += (_B[1,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
+                SY  += (_B[2,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
+                SXY += (_B[3,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
+            end
+            if (_axis == 0)
                 write(stressSX, string((_B[1,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
                 write(stressSY, string((_B[2,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
                 write(stressSXY, string((_B[3,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
-                #write(stressSX, string(SX, '\n'))
-                #write(stressSY, string(SY, '\n'))
-                #write(stressSXY, string(SXY, '\n'))
             end
+        end
+        if (_axis == 0)
             close(stressSX)
             close(stressSY)
-            close(stressSXY)  
-        else
-            if (_axis == 1); x[6] = 1; x[8] = 1;
-            elseif (_axis == 2); x[5] = 1; x[7] = 1; end
-
-            for e = 1:_model.nElems            
-                N1 = e + ((e - 1) ÷ _model.ny) + 1; N3 = N1 + _model.ny; N2 = N3 + 1; N4 = N1 - 1;
-                pElemDOFNum[1] = _model.DOFMap[N1] * 2 - 1; pElemDOFNum[2] = _model.DOFMap[N1] * 2;
-                pElemDOFNum[3] = _model.DOFMap[N2] * 2 - 1; pElemDOFNum[4] = _model.DOFMap[N2] * 2;
-                pElemDOFNum[5] = _model.DOFMap[N3] * 2 - 1; pElemDOFNum[6] = _model.DOFMap[N3] * 2;
-                pElemDOFNum[7] = _model.DOFMap[N4] * 2 - 1; pElemDOFNum[8] = _model.DOFMap[N4] * 2;
-                for i = 1:8
-                    SX  += (_B[1,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
-                    SY  += (_B[2,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
-                    SXY += (_B[3,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
-                end
-            end
+            close(stressSXY)
         end
     end
     C[1,_axis + 1] = SX / _model.nElems; C[2,_axis + 1] = SY / _model.nElems; C[3,_axis + 1] = SXY / _model.nElems;
@@ -577,10 +567,10 @@ function homogenize(_arg)
     # Compute the stiffness matrix for each Material:
     m_K = zeros(Float64, 8, 8, m_model.nMat)
     m_B = zeros(Float64, 3, 8, m_model.nMat)
+    m_C = zeros(Float64, 3, 3)
     elementStiffnessMatrices!(m_model, m_K, m_B)
     if (m_model.solverType == 0) # Preconditioned Conjugate Gradient Method
         # Initialize the effective tensor, the right hand side, the inicial guess and the preconditioner:
-        m_C = zeros(Float64, 3, 3)
         m_RHS = zeros(Float64, m_model.nDOFs)  
         m_X = zeros(Float64, m_model.nDOFs)
         m_M = zeros(Float64, m_model.nDOFs)
@@ -611,8 +601,7 @@ function homogenize(_arg)
         m_X1 = zeros(Float64, m_model.nDOFs); m_X2 = zeros(Float64, m_model.nDOFs); m_X3 = zeros(Float64, m_model.nDOFs);
         directMethod!(m_model, m_X1, m_X2, m_X3, m_RHS1, m_RHS2, m_RHS3, m_K)
         m_RHS1 = nothing; m_RHS2 = nothing; m_RHS3 = nothing;
-        # Compute Effective Property:
-        m_C = zeros(Float64, 3, 3)
+        # Compute Effective Property:        
         m_C .+= femEffective(m_model, m_X1, 0, m_B)
         m_C .+= femEffective(m_model, m_X2, 1, m_B)
         m_C .+= femEffective(m_model, m_X3, 2, m_B)
@@ -630,4 +619,5 @@ function homogenize(_arg)
         println("D[$i,:] = ", m_D[i,:])
     end
     println("\nE = ", 1 / m_D[1][1])
+    return m_C
 end
