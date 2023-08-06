@@ -526,6 +526,7 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
             stressSX = open("out/data/stressSXX.txt", "w")
             stressSY = open("out/data/stressSYY.txt", "w")
             stressSXY = open("out/data/stressSXY.txt", "w")
+            j2_file = open("out/data/j2.txt", "w")
         end
 
         for e = 1:_model.nElems            
@@ -543,12 +544,18 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
                 write(stressSX, string((_B[1,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
                 write(stressSY, string((_B[2,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
                 write(stressSXY, string((_B[3,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
+                _SX = (_B[1,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
+                _SY = (_B[2,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
+                _SXY = (_B[3,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
+                SV = sqrt(_SX^2 - (_SX * _SY) + _SY^2 + (3 * _SXY^2))
+                write(j2_file, string(SV^2/3, '\n'))
             end
         end
         if (_axis == 0)
             close(stressSX)
             close(stressSY)
             close(stressSXY)
+            close(j2_file)
         end
     end
     C[1,_axis + 1] = SX / _model.nElems; C[2,_axis + 1] = SY / _model.nElems; C[3,_axis + 1] = SXY / _model.nElems;

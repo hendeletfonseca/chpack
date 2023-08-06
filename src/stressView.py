@@ -8,7 +8,8 @@ def stress_view(FILE_PATH):
     HEIGHT = IMG.height
 
     # reading lines
-    filesxx = open("out/data/stressSXX.txt", "r")
+    #filesxx = open("out/data/stressSXX.txt", "r")
+    filesxx = open("out/data/j2.txt", "r")
     filesyy = open("out/data/stressSYY.txt", "r")
     filesxy = open("out/data/stressSXY.txt", "r")
     stressSXX = filesxx.readlines()
