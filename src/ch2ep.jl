@@ -468,23 +468,14 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
     if _model.rhsType == 1  # Boundary
         delta::Float64 = 0.0 
         if _axis == 0
-            stressSX = open("out/data/stressSXX.txt", "w")
-            stressSY = open("out/data/stressSYY.txt", "w")
-            stressSXY = open("out/data/stressSXY.txt", "w")
             delta = _model.nx;   
             for eb = _model.nElems - (_model.ny - 1):_model.nElems                
                 for j in [3 5]
                     SX   += (_B[1,j,_model.elemMatMap[eb]] * delta)
                     SY   += (_B[2,j,_model.elemMatMap[eb]] * delta)
                     SXY  += (_B[3,j,_model.elemMatMap[eb]] * delta)
-                end
-                write(stressSX, string(SX, '\n'))
-                write(stressSY, string(SY, '\n'))
-                write(stressSXY, string(SXY, '\n'))             
+                end            
             end
-            close(stressSX)
-            close(stressSY)
-            close(stressSXY)  
         elseif _axis == 1
             delta = _model.ny;
             for eb = 1:(_model.ny):_model.nElems                
@@ -523,9 +514,6 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
         elseif (_axis == 2); x[5] = 1; x[7] = 1; end
 
         if (_axis == 0)
-            stressSX = open("out/data/stressSXX.txt", "w")
-            stressSY = open("out/data/stressSYY.txt", "w")
-            stressSXY = open("out/data/stressSXY.txt", "w")
             j2_file = open("out/data/j2.txt", "w")
         end
 
@@ -541,9 +529,6 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
                 SXY += (_B[3,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
             end
             if (_axis == 0)
-                write(stressSX, string((_B[1,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
-                write(stressSY, string((_B[2,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
-                write(stressSXY, string((_B[3,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]])), '\n'))
                 _SX = (_B[1,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
                 _SY = (_B[2,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
                 _SXY = (_B[3,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
@@ -552,9 +537,6 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
             end
         end
         if (_axis == 0)
-            close(stressSX)
-            close(stressSY)
-            close(stressSXY)
             close(j2_file)
         end
     end
@@ -628,3 +610,5 @@ function homogenize(_arg)
     println("\nE = ", 1 / m_D[1][1])
     return m_C
 end
+
+homogenize("inp/crack")
