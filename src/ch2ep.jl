@@ -523,15 +523,16 @@ function femEffective(_model::Model, _X::Vector{Float64}, _axis::Int, _B::Array{
             pElemDOFNum[3] = _model.DOFMap[N2] * 2 - 1; pElemDOFNum[4] = _model.DOFMap[N2] * 2;
             pElemDOFNum[5] = _model.DOFMap[N3] * 2 - 1; pElemDOFNum[6] = _model.DOFMap[N3] * 2;
             pElemDOFNum[7] = _model.DOFMap[N4] * 2 - 1; pElemDOFNum[8] = _model.DOFMap[N4] * 2;
+            _SX = 0.0; _SY = 0.0; _SXY = 0.0; SV = 0.0;
             for i = 1:8
                 SX  += (_B[1,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
                 SY  += (_B[2,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
                 SXY += (_B[3,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
+                _SX += (_B[1,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
+                _SY += (_B[2,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
+                _SXY += (_B[3,i,_model.elemMatMap[e]] * (x[i] - _X[pElemDOFNum[i]]))
             end
             if (_axis == 0)
-                _SX = (_B[1,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
-                _SY = (_B[2,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
-                _SXY = (_B[3,1,_model.elemMatMap[e]] * (x[1] - _X[pElemDOFNum[1]]))
                 SV = sqrt(_SX^2 - (_SX * _SY) + _SY^2 + (3 * _SXY^2))
                 write(j2_file, string(SV^2/3, '\n'))
             end
@@ -611,4 +612,4 @@ function homogenize(_arg)
     return m_C
 end
 
-homogenize("inp/crack")
+homogenize("inp/crack_border")

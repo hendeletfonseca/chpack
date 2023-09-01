@@ -20,10 +20,11 @@ def stress_view(FILE_PATH):
 
     plt.imshow(matrix_j2, cmap='viridis', interpolation='nearest')
     plt.colorbar()
-    plt.savefig("out/img/stressSXX.png")
+    plt.savefig("out/img/vonMises.png")
 
 if __name__ == "__main__":
     print("Enter the path of the image (.tif): ")
-    FILE_PATH = input()
-    FILE_PATH += ".tiff"
+    #FILE_PATH = input()
+    #FILE_PATH += ".tiff"
+    FILE_PATH = "inp/crack_border.tiff"
     stress_view(FILE_PATH)
